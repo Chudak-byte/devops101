@@ -1,0 +1,8 @@
+ubuntu@ip-172-31-16-103:~$ sudo apache2ctl configtest                 
+    Syntax OK
+    ubuntu@ip-172-31-16-103:~$ sudo systemctl reload apache2
+    ubuntu@ip-172-31-16-103:~$ diff /etc/apache2/sites-available/wordpress.conf.bak /etc/apache2/sites-available/wordpress.conf
+    0a1,3
+    >
+    > #anekdot
+    >

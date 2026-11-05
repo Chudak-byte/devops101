@@ -68,4 +68,91 @@ ens5             UP             172.31.16.103/20 metric 100 fe80::8ff:d2ff:fe36:
     >
     > #anekdot
     >
+5.1 
+ubuntu@ip-172-31-16-103:~$ echo ok | sudo tee /srv/www/wordpress/health.txt
+ok
+ubuntu@ip-172-31-16-103:~$ curl -s http://localhost/health.txt
+ok
+ubuntu@ip-172-31-16-103:~$ curl -i http://localhost/health.txt
+HTTP/1.1 200 OK
+Date: Thu, 05 Nov 2026 21:51:16 GMT
+Server: Apache/2.4.58 (Ubuntu)
+Last-Modified: Thu, 05 Nov 2026 21:50:49 GMT
+ETag: "3-65f8e7d26c5e4"
+Accept-Ranges: bytes
+Content-Length: 3
+Content-Type: text/plain
 
+ok
+ubuntu@ip-172-31-16-103:~$ curl -s -o /dev/null -w '%{http_code}\n' http://localhost/
+200
+ubuntu@ip-172-31-16-103:~$ curl -v http://localhost/ 2>&1 | head -25
+* Host localhost:80 was resolved.
+* IPv6: ::1
+* IPv4: 127.0.0.1
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying [::1]:80...
+* Connected to localhost (::1) port 80
+> GET / HTTP/1.1
+> Host: localhost
+> User-Agent: curl/8.5.0
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Date: Thu, 05 Nov 2026 21:51:38 GMT
+< Server: Apache/2.4.58 (Ubuntu)
+< Link: <http://ec2-34-228-255-75.compute-1.amazonaws.com/wp-json/>; rel="https://api.w.org/"
+< Vary: Accept-Encoding
+< Transfer-Encoding: chunked
+< Content-Type: text/html; charset=UTF-8
+<
+{ [22611 bytes data]
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+        <meta charset="UTF-8" />
+ubuntu@ip-172-31-16-103:~$ curl -s -o /dev/null -w '%{http_code}\n' http://localhost/nope
+404
+ubuntu@ip-172-31-16-103:~$ curl -i -X POST \
+  -d 'comment_post_ID=1&author=you&email=you@example.com&comment=hello+from+curl' \
+  http://localhost/wp-comments-post.php
+HTTP/1.1 302 Found
+Date: Thu, 05 Nov 2026 21:54:24 GMT
+Server: Apache/2.4.58 (Ubuntu)
+Expires: Wed, 11 Jan 1984 05:00:00 GMT
+Cache-Control: no-cache, must-revalidate, max-age=0, no-store, private
+Set-Cookie: comment_author_842ad6db0958dc252fb0b142016a1731=%20; expires=Wed, 05 Nov 2025 21:54:24 GMT; Max-Age=0; path=/
+Set-Cookie: comment_author_email_842ad6db0958dc252fb0b142016a1731=%20; expires=Wed, 05 Nov 2025 21:54:24 GMT; Max-Age=0; path=/
+Set-Cookie: comment_author_url_842ad6db0958dc252fb0b142016a1731=%20; expires=Wed, 05 Nov 2025 21:54:24 GMT; Max-Age=0; path=/
+X-Redirect-By: WordPress
+Location: http://ec2-34-228-255-75.compute-1.amazonaws.com/2026/11/05/hello-world/?unapproved=2&moderation-hash=4a91bc3233d02ce79cc59a5bde5be0b1#comment-2
+Content-Length: 0
+Content-Type: text/html; charset=UTF-8
+6.1 
+ubuntu@ip-172-31-16-103:~$ sudo ss -tulpn
+Netid     State      Recv-Q     Send-Q              Local Address:Port            Peer Address:Port     Process
+udp       UNCONN     0          0                      127.0.0.54:53                   0.0.0.0:*         users:(("systemd-resolve",pid=346,fd=16))
+udp       UNCONN     0          0                   127.0.0.53%lo:53                   0.0.0.0:*         users:(("systemd-resolve",pid=346,fd=14))
+udp       UNCONN     0          0              172.31.16.103%ens5:68                   0.0.0.0:*         users:(("systemd-network",pid=482,fd=21))
+udp       UNCONN     0          0                       127.0.0.1:323                  0.0.0.0:*         users:(("chronyd",pid=687,fd=5))
+udp       UNCONN     0          0                           [::1]:323                     [::]:*         users:(("chronyd",pid=687,fd=6))
+tcp       LISTEN     0          4096                      0.0.0.0:22                   0.0.0.0:*         users:(("sshd",pid=973,fd=3),("systemd",pid=1,fd=87))
+tcp       LISTEN     0          70                      127.0.0.1:33060                0.0.0.0:*         users:(("mysqld",pid=764,fd=21))
+tcp       LISTEN     0          4096                127.0.0.53%lo:53                   0.0.0.0:*         users:(("systemd-resolve",pid=346,fd=15))
+tcp       LISTEN     0          4096                   127.0.0.54:53                   0.0.0.0:*         users:(("systemd-resolve",pid=346,fd=17))
+tcp       LISTEN     0          151                     127.0.0.1:3306                 0.0.0.0:*         users:(("mysqld",pid=764,fd=23))
+tcp       LISTEN     0          4096                         [::]:22                      [::]:*         users:(("sshd",pid=973,fd=4),("systemd",pid=1,fd=88))
+tcp       LISTEN     0          511                             *:80                         *:*         users:(("apache2",pid=1244,fd=4),("apache2",pid=1236,fd=4),("apache2",pid=1235,fd=4),("apache2",pid=1234,fd=4),("apache2",pid=1233,fd=4),("apache2",pid=1232,fd=4),("apache2",pid=1230,fd=4))
+ubuntu@ip-172-31-16-103:~$ sudo ss -tulpn | grep -E ':80|:3306'
+tcp   LISTEN 0      70              127.0.0.1:33060      0.0.0.0:*    users:(("mysqld",pid=764,fd=21))  
+tcp   LISTEN 0      151             127.0.0.1:3306       0.0.0.0:*    users:(("mysqld",pid=764,fd=23))  
+tcp   LISTEN 0      511                     *:80               *:*    users:(("apache2",pid=1244,fd=4),("apache2",pid=1236,fd=4),("apache2",pid=1235,fd=4),("apache2",pid=1234,fd=4),("apache2",pid=1233,fd=4),("apache2",pid=1232,fd=4),("apache2",pid=1230,fd=4))
+ubuntu@ip-172-31-16-103:~$ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1/health.txt
+200
+ubuntu@ip-172-31-16-103:~$ nc -zv 127.0.0.1 3306
+Connection to 127.0.0.1 3306 port [tcp/mysql] succeeded!
+7.1
+У першому випадку Apache слухає порт 80 і сам дає відповідь, але веб сервер не може дістатися до бази,а WordPress виконується всередині apache.
+У другому випадку на порту 80 не слухає ні один сервіс, тому TCP-з'єднання відхиляється, і порт 80 мертвий.
+8. Бюджет прив'язав до алертів та сюди закину скріни.
