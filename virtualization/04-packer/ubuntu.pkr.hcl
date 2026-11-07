@@ -23,16 +23,10 @@ packer {
 }
 
 source "vagrant" "ubuntu" {
-  source_path  = var.base_box
-  provider     = "virtualbox"
   communicator = "ssh"
-  add_force    = true
-
-  box_name   = local.box_name
-  output_dir = "output-${var.box_version}"
-
-  # Використовуємо наш кастомний Vagrantfile з увімкненим GUI
-  output_vagrantfile = "Vagrantfile"
+  source_path  = var.base_box
+  box_name     = local.box_name
+  output_dir   = "output-${var.box_version}"
 }
 
 build {
@@ -41,12 +35,23 @@ build {
 
   provisioner "shell" {
     inline = [
-      "echo '--- waiting for cloud-init to finish ---'",
       "cloud-init status --wait || true",
       "sudo apt-get update -y",
       "sudo apt-get install -y nginx git curl htop",
       "echo '<h1>Baked by Packer</h1>' | sudo tee /var/www/html/index.html",
-      "sudo systemctl enable nginx",
+      "echo 'xops-image-v1.0.0' | sudo tee /etc/xops-image",
+      "sudo systemctl enable nginx"
+    ]
+  }
+
+  provisioner "shell" {
+    inline = [
+      "git --version || { exit 1; }",
+      "curl --version || { exit 1; }",
+      "htop --version || { exit 1; }",
+      "nginx -v || { exit 1; }",
+      "sudo systemctl is-enabled --quiet nginx || { exit 1; }",
+      "[ -f /etc/xops-image ] || { exit 1; }"
     ]
   }
 }
