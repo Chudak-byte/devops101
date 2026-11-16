@@ -1,0 +1,30 @@
+Use of this system is acceptance of the OS vendor EULA and License Agreements.
+root@broken-boot-lab:~# journalctl -xb | grep -i -E "fail|dependenc" | head -20
+Nov 16 09:46:58 broken-boot-lab kernel: ACPI: _OSC evaluation for CPUs failed, trying _PDC
+Nov 16 09:47:01 broken-boot-lab kernel: vboxguest: module verification failed: signature and/or required key missing - tainting kernel
+Nov 16 09:47:03 broken-boot-lab kernel: platform regulatory.0: Direct firmware load for regulatory.db failed with error -2
+Nov 16 09:47:03 broken-boot-lab kernel: cfg80211: failed to load regulatory.db
+Nov 16 09:47:06 broken-boot-lab systemd[1]: Starting grub-initrd-fallback.service - GRUB failed boot detection...
+Nov 16 09:47:07 broken-boot-lab systemd[1]: Finished grub-initrd-fallback.service - GRUB failed boot detection.
+root@broken-boot-lab:~#
+root@broken-boot-lab:~# findmnt --verify --verbose
+/
+  [ ] target exists
+  [ ] source /dev/disk/by-id/dm-uuid-LVM-NZGKxWD1EtVYowX6ENyvhgdKoPp9mR0ft4hDK52ZzWhFMdnFM02xJc1pqS1q2QK exists
+  [ ] FS type is ext4
+/boot
+  [ ] target exists
+  [ ] source /dev/disk/by-uuid/faa6fb15-30f8-41f3-be06-314a34d8f020 exists
+  [ ] FS type is ext4
+none
+  [W] non-bind mount source /swap.img is a directory or regular file
+  [ ] FS type is swap
+/vagrant
+  [ ] target exists
+  [ ] FS options: uid=1000,gid=1000
+  [ ] userspace options: _netdev
+  [ ] do not check vagrant source (pseudo/net)
+  [ ] do not check vagrant FS type (pseudo/net)
+
+0 parse errors, 0 errors, 1 warning
+root@broken-boot-lab:~#

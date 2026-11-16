@@ -1,0 +1,22 @@
+root@broken-boot-lab:~# journalctl -xb | grep -i -E "fail|dependenc" | head -20
+Nov 16 09:39:35 broken-boot-lab kernel: ACPI: _OSC evaluation for CPUs failed, trying _PDC
+Nov 16 09:39:38 broken-boot-lab kernel: vboxguest: module verification failed: signature and/or required key missing - tainting kernel
+Subject: A start job for unit dev-disk-by\x2duuid-00000000\x2ddead\x2dbeef\x2d0000\x2d000000000000.device has failed
+A start job for unit dev-disk-by\x2duuid-00000000\x2ddead\x2dbeef\x2d0000\x2d000000000000.device has finished with a failure.
+Nov 16 09:41:05 broken-boot-lab systemd[1]: Dependency failed for data.mount - /data.
+Subject: A start job for unit data.mount has failed
+A start job for unit data.mount has finished with a failure.
+The job identifier is 87 and the job result is dependency.
+Nov 16 09:41:05 broken-boot-lab systemd[1]: Dependency failed for local-fs.target - Local File Systems.
+Subject: A start job for unit local-fs.target has failed
+A start job for unit local-fs.target has finished with a failure.
+The job identifier is 86 and the job result is dependency.
+Nov 16 09:41:05 broken-boot-lab systemd[1]: local-fs.target: Job local-fs.target/start failed with result 'dependency'.
+Nov 16 09:41:05 broken-boot-lab systemd[1]: local-fs.target: Triggering OnFailure= dependencies.
+Nov 16 09:41:05 broken-boot-lab systemd[1]: data.mount: Job data.mount/start failed with result 'dependency'.
+Nov 16 09:41:05 broken-boot-lab systemd[1]: dev-disk-by\x2duuid-00000000\x2ddead\x2dbeef\x2d0000\x2d000000000000.device: Job dev-disk-by\x2duuid-00000000\x2ddead\x2dbeef\x2d0000\x2d000000000000.device/start failed with result 'timeout'.
+Nov 16 09:41:06 broken-boot-lab kernel: platform regulatory.0: Direct firmware load for regulatory.db failed with error -2
+Nov 16 09:41:06 broken-boot-lab kernel: cfg80211: failed to load regulatory.db
+Nov 16 09:41:08 broken-boot-lab systemd[1]: Starting grub-initrd-fallback.service - GRUB failed boot detection...
+Nov 16 09:41:08 broken-boot-lab systemd[1]: Finished grub-initrd-fallback.service - GRUB failed boot detection.
+root@broken-boot-lab:~# _
