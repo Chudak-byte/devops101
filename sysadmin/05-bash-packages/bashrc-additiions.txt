@@ -1,0 +1,61 @@
+which jq && type -a jq && jq --version
+
+alias ll='ls -alh'
+alias ports='sudo ss -tulpn'
+alias wplog='sudo tail -f /var/log/apache2/other_vhosts_access.log /var/log/apache2/error.log'
+export HISTSIZE=10000
+export HISTCONTROL=ignoreboth
+
+vagrant@vagrant:~$ alias ll
+alias ll='ls -alh'
+vagrant@vagrant:~$ ll
+total 48K
+drwxr-x--- 4 vagrant vagrant 4.0K Nov 20 18:18 .
+drwxr-xr-x 3 root    root    4.0K Oct 23  2025 ..
+-rw-r--r-- 1 vagrant vagrant  220 Mar 31  2024 .bash_logout
+-rw-r--r-- 1 vagrant vagrant 4.0K Nov 20 18:18 .bashrc
+drwx------ 2 vagrant vagrant 4.0K Oct 23  2025 .cache
+-rw-rw-r-- 1 vagrant vagrant    0 Nov 20 17:34 errors.txt
+-rw------- 1 vagrant vagrant   20 Nov 20 10:38 .lesshst
+-rw-r--r-- 1 vagrant vagrant  807 Mar 31  2024 .profile
+-rw-r--r-- 1 root    root    7.5K Nov 20 10:02 setup-wordpress.sh
+drwx------ 2 vagrant vagrant 4.0K Nov 19 08:40 .ssh
+-rw-r--r-- 1 vagrant vagrant    0 Oct 23  2025 .sudo_as_admin_successful
+-rw-r--r-- 1 vagrant vagrant    5 Oct 23  2025 .vbox_version
+-rw-rw-r-- 1 vagrant vagrant  216 Nov 20 11:16 .wget-hsts
+vagrant@vagrant:~$ ports
+Netid           State            Recv-Q           Send-Q                      Local Address:Port                       Peer Address:Port           Process                                                                                                                                            
+udp             UNCONN           0                0                              127.0.0.54:53                              0.0.0.0:*               users:(("systemd-resolve",pid=15552,fd=16))                                                                                                       
+udp             UNCONN           0                0                           127.0.0.53%lo:53                              0.0.0.0:*               users:(("systemd-resolve",pid=15552,fd=14))                                                                                                       
+udp             UNCONN           0                0                          10.0.2.15%eth0:68                              0.0.0.0:*               users:(("systemd-network",pid=15581,fd=25))                                                                                                       
+tcp             LISTEN           0                70                              127.0.0.1:33060                           0.0.0.0:*               users:(("mysqld",pid=13402,fd=21))                                                                                                                
+tcp             LISTEN           0                151                             127.0.0.1:3306                            0.0.0.0:*               users:(("mysqld",pid=13402,fd=26))                                                                                                                
+tcp             LISTEN           0                4096                        127.0.0.53%lo:53                              0.0.0.0:*               users:(("systemd-resolve",pid=15552,fd=15))                                                                                                       
+tcp             LISTEN           0                4096                              0.0.0.0:22                              0.0.0.0:*               users:(("sshd",pid=15560,fd=3),("systemd",pid=1,fd=121))                                                                                          
+tcp             LISTEN           0                4096                           127.0.0.54:53                              0.0.0.0:*               users:(("systemd-resolve",pid=15552,fd=17))                                                                                                       
+tcp             LISTEN           0                511                                     *:80                                    *:*               users:(("apache2",pid=18913,fd=4),("apache2",pid=18840,fd=4),("apache2",pid=18839,fd=4),("apache2",pid=18823,fd=4),("apache2",pid=18822,fd=4),("apache2",pid=18821,fd=4),("apache2",pid=18814,fd=4))
+tcp             LISTEN           0                4096                                 [::]:22                                 [::]:*               users:(("sshd",pid=15560,fd=4),("systemd",pid=1,fd=123))                                                                                          
+vagrant@vagrant:~$ wplog 
+==> /var/log/apache2/other_vhosts_access.log <==
+127.0.1.1:80 ::1 - - [20/Nov/2026:11:58:09 +0000] "GET /does-not-exist-11 HTTP/1.1" 404 432 "-" "curl/8.5.0"
+127.0.1.1:80 ::1 - - [20/Nov/2026:11:58:09 +0000] "GET /does-not-exist-12 HTTP/1.1" 404 432 "-" "curl/8.5.0"
+127.0.1.1:80 ::1 - - [20/Nov/2026:11:58:09 +0000] "GET /does-not-exist-13 HTTP/1.1" 404 432 "-" "curl/8.5.0"
+127.0.1.1:80 ::1 - - [20/Nov/2026:11:58:09 +0000] "GET /does-not-exist-14 HTTP/1.1" 404 432 "-" "curl/8.5.0"
+127.0.1.1:80 ::1 - - [20/Nov/2026:11:58:09 +0000] "GET /does-not-exist-15 HTTP/1.1" 404 432 "-" "curl/8.5.0"
+127.0.1.1:80 ::1 - - [20/Nov/2026:11:58:16 +0000] "GET / HTTP/1.1" 301 222 "-" "curl/8.5.0"
+127.0.1.1:80 ::1 - - [20/Nov/2026:11:58:22 +0000] "GET / HTTP/1.1" 301 222 "-" "curl/8.5.0"
+127.0.1.1:80 ::1 - - [20/Nov/2026:11:59:48 +0000] "GET / HTTP/1.1" 301 222 "-" "curl/8.5.0"
+127.0.1.1:80 10.0.2.2 - - [20/Nov/2026:12:00:05 +0000] "GET / HTTP/1.1" 200 12237 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Safari/537.36"
+127.0.1.1:80 10.0.2.2 - - [20/Nov/2026:12:00:57 +0000] "-" 408 0 "-" "-"
+
+==> /var/log/apache2/error.log <==
+[Fri Nov 20 10:03:10.158771 2026] [core:notice] [pid 15453] AH00094: Command line: '/usr/sbin/apache2'
+[Fri Nov 20 10:15:27.555176 2026] [mpm_prefork:notice] [pid 15453] AH00170: caught SIGWINCH, shutting down gracefully
+[Fri Nov 20 10:15:27.801391 2026] [mpm_prefork:notice] [pid 18121] AH00163: Apache/2.4.58 (Ubuntu) configured -- resuming normal operations
+[Fri Nov 20 10:15:27.801437 2026] [core:notice] [pid 18121] AH00094: Command line: '/usr/sbin/apache2'
+[Fri Nov 20 10:18:50.188303 2026] [mpm_prefork:notice] [pid 18121] AH00170: caught SIGWINCH, shutting down gracefully
+[Fri Nov 20 10:18:50.525259 2026] [mpm_prefork:notice] [pid 18251] AH00163: Apache/2.4.58 (Ubuntu) configured -- resuming normal operations
+[Fri Nov 20 10:18:50.525309 2026] [core:notice] [pid 18251] AH00094: Command line: '/usr/sbin/apache2'
+[Fri Nov 20 10:26:36.954988 2026] [mpm_prefork:notice] [pid 18251] AH00170: caught SIGWINCH, shutting down gracefully
+[Fri Nov 20 10:26:37.554730 2026] [mpm_prefork:notice] [pid 18814] AH00163: Apache/2.4.58 (Ubuntu) configured -- resuming normal operations
+[Fri Nov 20 10:26:37.554777 2026] [core:notice] [pid 18814] AH00094: Command line: '/usr/sbin/apache2'
