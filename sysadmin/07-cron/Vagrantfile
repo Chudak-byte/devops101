@@ -1,0 +1,64 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "bento/ubuntu-24.04"
+  # 1. Машина з WordPress (основний застосунок)
+  config.vm.define "wp-app" do |wp|
+    wp.vm.hostname = "wp-app"
+    wp.vm.network "private_network", ip: "192.168.56.10"
+    wp.vm.provider "virtualbox" do |vb|
+      vb.name = "lab-wp-app"
+      vb.memory = "1024"
+      vb.cpus = 1
+    end
+
+    wp.vm.provision "shell", inline: <<-SHELL
+      set -euo pipefail
+      export DEBIAN_FRONTEND=noninteractive
+
+      mkdir -p /backups
+      chmod 700 /backups
+
+      mkdir -p /root/.ssh
+      chmod 700 /root/.ssh
+      if [ ! -f /root/.ssh/backup ]; then
+        ssh-keygen -t ed25519 -f /root/.ssh/backup -N ""
+      fi
+
+      if [ ! -f /root/setup-wordpress.sh ]; then
+        curl -fsSLO https://lms.x-ops.io/labfiles/sysadmin/setup-wordpress.sh
+        mv setup-wordpress.sh /root/setup-wordpress.sh
+      fi
+      bash /root/setup-wordpress.sh
+    SHELL
+  end
+
+  # 2. Друга машина — чисто під бекапи (мінімальні параметри, без WordPress)
+  config.vm.define "backup-target" do |bkp|
+    bkp.vm.hostname = "backup-target"
+    bkp.vm.network "private_network", ip: "192.168.56.20"
+    bkp.vm.provider "virtualbox" do |vb|
+      vb.name = "lab-backup-target"
+      vb.memory = "512"
+      vb.cpus = 1
+    end
+
+    bkp.vm.provision "shell", inline: <<-SHELL
+      set -euo pipefail
+      mkdir -p /backups
+      chown vagrant:vagrant /backups
+      chmod 700 /backups
+      mkdir -p /home/vagrant/.ssh
+      chmod 700 /home/vagrant/.ssh
+    SHELL
+  end
+
+  # 3. Прокидання публічного ключа root з wp-app на backup-target та додавання в known_hosts
+  config.vm.provision "shell", run: "always", inline: <<-SHELL
+    set -euo pipefail
+    PUB_KEY=$(vagrant ssh wp-app -c "sudo cat /root/.ssh/backup.pub" 2>/dev/null | tr -d '\r')
+
+    if [ -n "$PUB_KEY" ]; then
+      vagrant ssh backup-target -c "grep -qxF '$PUB_KEY' /home/vagrant/.ssh/authorized_keys 2>/dev/null || echo '$PUB_KEY' >> /home/vagrant/.ssh/authorized_keys && chmod 600 /home/vagrant/.ssh/authorized_keys"
+      vagrant ssh wp-app -c "sudo ssh-keyscan -H 192.168.56.20 >> /root/.ssh/known_hosts 2>/dev/null || true"
+    fi
+  SHELL
+end
